@@ -60,7 +60,7 @@ plot = [
 
 [project.urls]
 Repository= "https://github.com/openalea/astk"
-Homepage = "https://openalea_astk.readthedocs.io/"
+Homepage = "https://openalea-astk.readthedocs.io/"
 "Bug Tracker" = "https://github.com/openalea/astk/issues"
 Discussions = "https://github.com/openalea/astk/discussions"
 
