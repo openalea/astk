@@ -20,13 +20,14 @@ Created on Wed Apr 24 14:29:15 2013
 
 from __future__ import division
 from __future__ import print_function
-import pandas
 import pytz
 from datetime import timedelta
 from pathlib import Path
 
+import pandas
+
 from .TimeControl import *
-from openalea.astk.sun_position import sun_position
+from .sun_position import sun_position
 from . import sky_sources as sunsky
 from .data_access import meteo00_01
 

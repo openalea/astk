@@ -15,12 +15,11 @@
 Provides utilities for scheduling models in simulation
 """
 from __future__ import division
-import numpy
-#from six.moves import map
-#from six.moves import zip
 from functools import reduce
 
-class TimeControlSet(object):
+import numpy
+
+class TimeControlSet:
 
     def __init__(self, **kwd):
         """  Create a TimeControlSet , that is a simple class container for named object"""
@@ -36,7 +35,7 @@ def simple_delay_timing(delay = 1, steps =1):
     return (TimeControlSet(dt=delay) if not i % delay  else TimeControlSet(dt=0) for i in range(steps))
             
             
-class TimeControl(object):
+class TimeControl:
 
     def __init__(self, delay=None, steps=None, model=None, weather=None, start_date=None):
         """ create a generator-like timecontrol object """
@@ -63,7 +62,7 @@ class TimeControl(object):
         return next(self._timing)
                   
             
-class TimeControler(object):
+class TimeControler:
 
     def __init__(self, **kwd):
         """ create a controler for parallel run of time controls
@@ -96,7 +95,7 @@ def evaluation_sequence(delays):
     seq = [[True if i == 0 else False for i in range(int(d))] for d in delays]
     return reduce(lambda x,y: x + y, seq)
 
-class EvalValue(object):
+class EvalValue:
     
     def __init__(self, eval, value, dt):
         self.eval = eval
@@ -106,7 +105,7 @@ class EvalValue(object):
     def __nonzero__(self):
         return self.eval
 
-class IterWithDelays(object):
+class IterWithDelays:
 
     def __init__(self, values = [None], delays = [1]):
         self.delays = delays
@@ -220,7 +219,7 @@ def rain_filter_node(time_sequence, weather):
     filter = rain_filter(time_sequence, weather)
     return time_sequence, filter, weather.data
    
-class DegreeDayModel(object):
+class DegreeDayModel:
     """ Classical degreeday model equation
     """
     

@@ -20,7 +20,12 @@ from openalea.astk.sky_irradiance import (
     f_clear_sky,
     all_weather_sky_brightness
 )
-from openalea.astk.sky_map import ksi_grid, scale_sky, sky_ni, sky_lum
+from openalea.astk.sky_map import (
+    ksi_grid, 
+    scale_sky, 
+    sky_ni, 
+    sky_lum
+)
 
 
 def cie_luminance_gradation(z, a=4, b=-0.7):

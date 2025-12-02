@@ -14,7 +14,7 @@
 
 from __future__ import division
 from openalea.plantgl import all as pgl
-#from six.moves import range
+
 
 def _is_iterable(x):
     try:
@@ -23,8 +23,21 @@ def _is_iterable(x):
         return False
     return True
 
-
 def get_area_and_normal(scene_geometry):
+    """ Calculate the area and normal of objects in a PlantGL scene
+    
+    Parameters
+    ----------  
+    scene_geometry: dict([id, geometry])
+        Dictionnary of geometries of objects in the scene.
+
+    Returns
+    ------- 
+    areas: dict([id, list of float])
+        Dictionnary of list of surface of triangles composing each object in the scene.
+    normals: dict([id, list of pgl.Vector3])
+        Dictionnary of list of normal vectors of triangles composing each object in the scene.
+    """
 
     def _surf(ind,pts):
         A,B,C = [pts[i] for i in ind]
