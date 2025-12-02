@@ -161,17 +161,17 @@ def split_triangles(vertices, faces, tags=None):
     """ Iterate an icosphere by sub-dividing each triangle into 4.
 
     Args:
-        vertices (list of tuples): list of 3D coordinates of icosphere vertices
-        faces (list of tuple): list of vertex indices defining the faces
-        tags (list of int): list of integer identifying a face. if None (default)
-        no tags are returned
+        - vertices (list of tuples): list of 3D coordinates of icosphere vertices
+        - faces (list of tuple): list of vertex indices defining the faces
+        - tags (list of int): list of integer identifying a face. if None (default)
+            no tags are returned
     Returns:
-        a list of vertices and a list of faces and, if tags is not None, a list
-        of tags referencing the tag of the parent face
+        - a list of vertices and a list of faces and, if tags is not None, a list
+            of tags referencing the tag of the parent face
 
     This is a python implementation of the C code found here:
     http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
-"""
+    """
     # copy input
     new_faces = [f for f in faces]
     new_vertices = [v for v in vertices]
@@ -224,8 +224,11 @@ def split_triangles(vertices, faces, tags=None):
 
 
 def sorted_faces(center, face_indices, faces):
-    """ return face indices sorted to form a counter clockwise rotation
-     around its centroid"""
+    """ Sort faces.
+    
+    Return face indices sorted to form a counter clockwise rotation
+    around its centroid.
+    """
     indices = [i for i in face_indices]
     sorted_indices = [indices.pop(0)]
     while len(indices) > 0:

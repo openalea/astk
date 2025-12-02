@@ -9,11 +9,11 @@ __name__ = 'openalea.astk'
 __editable__ = True
 __description__ = ''
 __license__ = 'CeCILL-C'
-__url__ = 'http://openalea.gforge.inria.fr'
+__url__ = 'https://openalea-astk.rtfd.io'
 __alias__ = []
-__version__ = '1.0.0'
+__version__ = '3.0.0'
 __authors__ = ''
-__institutes__ = None
+__institutes__ = 'inria, CIRAD, INRAE'
 __icon__ = ''
 
 
