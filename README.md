@@ -48,7 +48,7 @@ from openalea.astk.sky_irradiance import sky_irradiance
 from openalea.astk.sky_sources import sky_sources
 
 irradiance = sky_irradiance()
-sources = sky_sources('all-weather', irradiance)
+sources = sky_sources('all_weather', irradiance)
 ```
 
 See other example in the documentation
