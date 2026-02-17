@@ -114,24 +114,16 @@ def scale_sky(grid, luminance, irradiance=1):
 
 
 def closest_point(point_grid, point_list):
+    """Compute the index of the closest point in point list for a grid of points"""
     dists = [numpy.sum((point_grid - p)**2, axis=2) for p in point_list]
     return numpy.argmin(numpy.stack(dists, axis=2), axis=2)
 
 
-def sky_map(grid, luminance, new_directions, force_hi=False):
-    """Aggregate luminance for a given new set of directions
-
+def closest_dir(grid, new_directions):
+    """Compute the index of the closest direction in new_directions for a sky-grid
     Args:
         grid: a (az_c, z_c, sr_c) tuple of sky coordinates, such as returned by astk.sky_map.sky_grid
-        luminance : sky luminance gridded array describing distribution of luminance over the sky hemisphere
-        new_directions : a [(elevation, azimuth),..] list of tuples defining directions of the aggregated sky
-        force_hi: if True, aggregated luminance are rescaled to force conservation of global horizontal irradiance.
-            If False (default), no rescaled is applied
-
-    Returns:
-        luminance_agg: luminance aggregated along new directions
-        grid_agg: a (azimuth, zenith, sr) tuple describing the aggregated directions and the associated steradians
-        luminance_agg_sky: sky aggregated luminance projected on the original sky grid
+        new_directions : a [(elevation, azimuth),..] list of tuples defining directions
     """
     az, z, sr = grid
 
@@ -144,7 +136,32 @@ def sky_map(grid, luminance, new_directions, force_hi=False):
 
     grid_points = numpy.stack(_polar(az, z), axis=2)
     target_points = numpy.array([_polar(a, 90 - el) for el, a in new_directions])
-    targets = closest_point(grid_points, target_points)
+    return closest_point(grid_points, target_points)
+
+
+def sky_map(grid, luminance, new_directions, closest_dirs=None, force_hi=False):
+    """Aggregate luminance for a given new set of directions
+
+    Args:
+        grid: a (az_c, z_c, sr_c) tuple of sky coordinates, such as returned by astk.sky_map.sky_grid
+        luminance : sky luminance gridded array describing distribution of luminance over the sky hemisphere
+        new_directions : a [(elevation, azimuth),..] list of tuples defining directions of the aggregated sky
+        closest_dirs : (optional) the gridded-index of the closest direction in new_direction, such as returned by closest_dir.
+            Allows saving time recomputing closest_dir in the case of multiple call to sky_map with same grid/new_directions. Default is None
+        force_hi: if True, aggregated luminance are rescaled to force conservation of global horizontal irradiance.
+            If False (default), no rescaled is applied
+
+    Returns:
+        luminance_agg: luminance aggregated along new directions
+        grid_agg: a (azimuth, zenith, sr) tuple describing the aggregated directions and the associated steradians
+        luminance_agg_sky: sky aggregated luminance projected on the original sky grid
+    """
+    az, z, sr = grid
+
+    if not closest_dirs:
+        closest_dirs = closest_dir(grid, new_directions)
+
+    targets= closest_dirs
     light_flux = luminance * sr
     light_flux_agg = numpy.bincount(targets.flatten(), weights=light_flux.flatten())
     sr_agg = numpy.bincount(targets.flatten(), weights=sr.flatten())

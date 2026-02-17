@@ -51,7 +51,21 @@ def sky_turtle(sectors=46):
         return icospherical_turtle(sectors)
 
 
-def sky_sources(sky_type='soc', sky_irradiance=None, sky_dirs=None, scale=None, north=90, sun_in_sky=False, force_hi=True):
+def polar_angle(azimuth, north=90):
+    """Convert azimuth (from north, positive clockwise) to polar angle (from X+, positive counter-clockwise)
+
+    Args:
+        azimuth (array-like): the azimuth angle (deg), from north, positive clockwise
+        north: the angle between X+ and North (deg, positive counter-clockwise)
+    """
+    az = numpy.array(azimuth, dtype=float)
+    polar = north - az
+    modulo = 360
+    # force to [0, modulo] range
+    return (polar + modulo) % modulo
+
+
+def sky_sources(sky_type='soc', sky_irradiance=None, sky_dirs=None, scale=None, sun_in_sky=False, force_hi=True):
     """ Light sources representing the sun and the sky in a scene
 
     Args:
@@ -67,7 +81,6 @@ def sky_sources(sky_type='soc', sky_irradiance=None, sky_dirs=None, scale=None, 
             - 'ppfd' : sun+sky horizontal flux equals mean PPFD (micromolPAR.m-2.s-1)
             - 'global': sun+sky horizontal flux equals time-integrated global irradiance (MJ.m-2)
             - 'par': sun+sky horizontal flux equals time-integrated PPFD (molPAR.m-2)
-        north: the angle between X+ and North (deg, positive counter-clockwise)
         sun_in_sky: Should the sun be added to the sky ? If True, sky luminance is set to sun luminance in the sun region,
             and sun luminance list is emptied. Ignored for sky types 'uoc' and 'soc'.
         force_hi: if True (default), sky sources are rescaled to ensure that global horizontal irradiance of discretised
@@ -75,7 +88,7 @@ def sky_sources(sky_type='soc', sky_irradiance=None, sky_dirs=None, scale=None, 
 
     Returns:
         sun, sky tuple
-        sun and sky are lists of (elevation (degrees), azimuth (degrees, from X+ positive counter-clockwise),
+        sun and sky are lists of (elevation (degrees), azimuth (degrees, from North positive clockwise),
         horizontal_irradiance) tuples of sources representing the sun or the sky
 
     Details:
@@ -101,15 +114,7 @@ def sky_sources(sky_type='soc', sky_irradiance=None, sky_dirs=None, scale=None, 
         [4] R. Perez, R. Seals, J. Michalsky, "All-weather model for sky luminance distribution—Preliminary configuration and
             validation", Solar Energy, Volume 50, Issue 3, 1993, Pages 235-245
   """
-    def _normalise_angle(angle, north):
-        """normalise an angle to the [0, 360] range"""
-        angle = numpy.array(angle, dtype=float)
-        angle = north - angle
-        modulo = 360
-        angle %= modulo
-        # force to [0, modulo] range
-        angle = (angle + modulo) % modulo
-        return angle
+
 
     grid = sky_grid()
     sun, sky = sky_luminance(grid, sky_type=sky_type, sky_irradiance=sky_irradiance, scale=scale, sun_in_sky=sun_in_sky)
@@ -119,13 +124,11 @@ def sky_sources(sky_type='soc', sky_irradiance=None, sky_dirs=None, scale=None, 
     sky_agg, grid_agg, _ = sky_map(grid, sky, sky_dirs, force_hi=force_hi)
     sky_irr = sky_hi(grid_agg, sky_agg)
     sky_elevation, sky_azimuth = zip(*sky_dirs)
-    sky_azimuth = _normalise_angle(sky_azimuth, north)
     sky_sources = list(zip(sky_elevation, sky_azimuth, sky_irr))
 
     if len(sun) > 0:
         sun_elevation, sun_azimuth, _ = zip(*sun)
         sun_irr = source_hi(sun)
-        sun_azimuth = _normalise_angle(sun_azimuth, north)
         sun_sources = list(zip(sun_elevation, sun_azimuth, sun_irr))
     else:
         sun_sources = sun
@@ -143,16 +146,16 @@ def source_ni(src_hi):
     return numpy.where(el == 0, numpy.nan, hi / numpy.sin(numpy.radians(el)))
 
 
-def caribu_light_sources(sun, sky):
-    def _vect_dir(elevation, azimuth):
+def caribu_light_sources(sun, sky, north=90):
+    def _vect_dir(elevation, azimuth, north):
         """ coordinate of look_at source vector from elevation and azimuth (deg, f
         rom X+ positive counter-clockwise)"""
         theta = numpy.radians(90 - numpy.array(elevation))
-        phi = numpy.radians(azimuth)
+        phi = numpy.radians(polar_angle(azimuth, north))
         return -numpy.sin(theta) * numpy.cos(phi), -numpy.sin(theta) * numpy.sin(phi), -numpy.cos(theta)
 
     el, az, irrad = zip(*(sun + sky))
-    x, y, z = _vect_dir(el, az)
+    x, y, z = _vect_dir(el, az, north)
 
     return [(irr, (xx, yy, zz)) for irr, xx, yy, zz in
             zip(irrad, x, y, z)]
